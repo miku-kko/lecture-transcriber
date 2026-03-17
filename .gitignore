@@ -8,4 +8,4 @@ build/
 .venv/
 venv/
 .pytest_cache/
-obsidian-vault/Lectures/
+obsidian-vault/

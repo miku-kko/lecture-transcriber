@@ -330,11 +330,16 @@ class DeepgramSTTClient:
         if self._recv_thread:
             self._recv_thread.join(timeout=3)
             self._recv_thread = None
-        # Drain audio queue
+        # Drain queues
         while not self._audio_queue.empty():
             try:
                 self._audio_queue.get_nowait()
             except queue.Empty:
+                break
+        while not self._segment_queue.empty():
+            try:
+                self._segment_queue.get_nowait()
+            except asyncio.QueueEmpty:
                 break
         logger.info("Deepgram disconnected")
 

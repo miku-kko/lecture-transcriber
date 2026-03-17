@@ -41,7 +41,7 @@ class CorrectionManager:
         self._batch_queue: asyncio.Queue[list[TranscriptSegment]] = asyncio.Queue()
         # History of corrected blocks for context
         self._corrected_history: list[str] = []
-        # Cache for ollama availability (checked once per session, not per batch)
+        # Cache for ollama availability (60s TTL, invalidated on failure)
         self._ollama_available: Optional[bool] = None
         self._ollama_checked_at: float = 0.0
 

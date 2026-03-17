@@ -168,7 +168,7 @@ class AudioCapture:
         # Maximize system input volume on macOS
         self._set_system_input_volume(100)
 
-        # Always use built-in MacBook mic
+        # Prefer built-in MacBook mic, fall back to config device
         device = self._find_builtin_mic()
         if device is not None:
             logger.info(f"Using built-in mic: device #{device}")

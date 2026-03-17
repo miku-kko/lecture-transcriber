@@ -96,20 +96,21 @@ tags: [wyklad, transkrypcja]
         emitted_batch_ids: set[str] = set()
 
         for seg in session.segments:
-            if seg.correction and seg.is_corrected:
-                batch_id = seg.correction.segment_id
-                # For batch corrections (pipe-separated IDs), emit the combined
-                # corrected text only once for the first segment in the batch
-                if "|" in batch_id:
-                    if batch_id in emitted_batch_ids:
-                        continue
-                    emitted_batch_ids.add(batch_id)
-
+            # Always track speaker changes, even for batch-skipped segments
             if seg.speaker_role != current_speaker:
                 current_speaker = seg.speaker_role
                 emoji = SPEAKER_EMOJI.get(current_speaker, "")
                 label = SPEAKER_LABEL.get(current_speaker, "Mowca")
                 lines.append(f"\n**{emoji} {label}:**\n")
+
+            # For batch corrections (pipe-separated IDs), emit the combined
+            # corrected text only once for the first segment in the batch
+            if seg.correction and seg.is_corrected:
+                batch_id = seg.correction.segment_id
+                if "|" in batch_id:
+                    if batch_id in emitted_batch_ids:
+                        continue
+                    emitted_batch_ids.add(batch_id)
 
             text = seg.text
             if seg.correction and seg.is_corrected:
@@ -121,9 +122,16 @@ tags: [wyklad, transkrypcja]
 
     def _corrections_summary(self, segments: list[TranscriptSegment]) -> str:
         lines = []
+        seen_batch_ids: set[str] = set()
         for seg in segments:
             if not seg.correction:
                 continue
+            # Skip duplicate batch corrections
+            batch_id = seg.correction.segment_id
+            if "|" in batch_id:
+                if batch_id in seen_batch_ids:
+                    continue
+                seen_batch_ids.add(batch_id)
             for item in seg.correction.items:
                 severity_icon = {
                     "error": "🔴",
