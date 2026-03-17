@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture Transcriber</title>
+    <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body>
+    <!-- Top Bar -->
+    <header id="topbar">
+        <div class="topbar-left">
+            <h1>Lecture Transcriber</h1>
+            <input type="text" id="session-title" placeholder="Tytul wykladu..." />
+        </div>
+        <div class="topbar-center">
+            <button id="btn-record" class="btn btn-record" title="Rozpocznij nagrywanie">
+                <span class="record-icon"></span>
+                <span class="btn-label">Nagrywaj</span>
+            </button>
+            <button id="btn-stop" class="btn btn-stop" disabled title="Zatrzymaj nagrywanie">
+                <span class="stop-icon"></span>
+                <span class="btn-label">Stop</span>
+            </button>
+            <span id="recording-indicator" class="indicator hidden">
+                <span class="pulse"></span> Nagrywanie...
+            </span>
+        </div>
+        <div class="topbar-audio">
+            <div class="gain-control">
+                <label for="gain-slider" class="gain-label" title="Wzmocnienie mikrofonu">Mic</label>
+                <input type="range" id="gain-slider" min="0.5" max="15" step="0.5" value="3" />
+                <span id="gain-value" class="gain-value">3.0x</span>
+                <label class="agc-toggle" title="Automatyczna kontrola wzmocnienia">
+                    <input type="checkbox" id="agc-checkbox" checked />
+                    <span class="agc-label">AGC</span>
+                </label>
+            </div>
+            <div class="level-meter-container" title="Poziom sygnalu audio">
+                <div class="level-meter">
+                    <div id="level-bar-rms" class="level-bar rms"></div>
+                    <div id="level-bar-peak" class="level-bar peak"></div>
+                </div>
+                <span id="level-db" class="level-db">--</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span id="status-ollama" class="status-badge" title="Ollama">Ollama: --</span>
+            <span id="status-deepgram" class="status-badge" title="Deepgram">DG: --</span>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main id="app">
+        <!-- Left Panel: Lectures + RAG Search -->
+        <aside id="panel-left">
+            <div class="panel-section">
+                <h2>Szukaj w wykladach</h2>
+                <div class="search-box">
+                    <input type="text" id="rag-query" placeholder="Szukaj..." />
+                    <button id="btn-rag-search" class="btn btn-sm">Szukaj</button>
+                </div>
+                <div id="rag-results" class="results-list"></div>
+            </div>
+            <div class="panel-section">
+                <h2>Ostatnie wyklady</h2>
+                <button id="btn-refresh-lectures" class="btn btn-sm">Odswiez</button>
+                <div id="lecture-list" class="results-list"></div>
+            </div>
+        </aside>
+
+        <!-- Center Panel: Live Transcript -->
+        <section id="panel-center">
+            <div id="transcript-container">
+                <div id="transcript-content"></div>
+                <div id="interim-text" class="interim"></div>
+            </div>
+            <div id="empty-state">
+                <p>Kliknij <strong>Nagrywaj</strong> aby rozpoczac transkrypcje wykladu.</p>
+                <p class="hint">Upewnij sie, ze Deepgram API key jest skonfigurowany w .env</p>
+            </div>
+        </section>
+
+        <!-- Right Panel: Correction Details -->
+        <aside id="panel-right">
+            <h2>Korekty</h2>
+            <div id="correction-details">
+                <p class="placeholder">Korekty sa stosowane automatycznie.</p>
+            </div>
+
+            <!-- Keyterms -->
+            <div class="panel-section" style="margin-top: 1rem;">
+                <h3>Slowa kluczowe</h3>
+                <p style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.4rem;">Wazne terminy do lepszego rozpoznawania (po jednym w linii)</p>
+                <textarea id="keyterms-input" rows="4" placeholder="np. transformata Fouriera&#10;algorytm Dijkstry&#10;macierz odwrotna" style="width:100%;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:6px;padding:0.4rem;color:var(--text-primary);font-size:0.8rem;resize:vertical;"></textarea>
+                <button id="btn-save-keyterms" class="btn btn-sm" style="margin-top:0.3rem;">Zapisz terminy</button>
+            </div>
+
+            <!-- Speaker Map -->
+            <div class="panel-section" style="margin-top: 1rem;">
+                <h3>Mowcy</h3>
+                <div id="speaker-map"></div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/static/js/app.js?v=5"></script>
+</body>
+</html>
