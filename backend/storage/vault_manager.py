@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -69,7 +70,8 @@ class VaultManager:
 
     def read_lecture(self, relative_path: str) -> str:
         filepath = (self._vault_path / relative_path).resolve()
-        if not str(filepath).startswith(str(self._vault_path.resolve())):
+        vault_root = str(self._vault_path.resolve()) + os.sep
+        if not str(filepath).startswith(vault_root):
             raise ValueError("Access denied: path traversal detected")
         return filepath.read_text(encoding="utf-8")
 

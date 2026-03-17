@@ -121,7 +121,7 @@ class AudioCapture:
             self._on_audio(pcm_bytes)
             self._chunks_sent += 1
 
-            # Report audio levels every 10 chunks (~2.5s)
+            # Report audio levels every 10 chunks (~1s at 16kHz/1600 blocksize)
             if self._chunks_sent % 10 == 1:
                 flat = amplified.flatten().astype(np.float32)
                 rms = float(np.sqrt(np.mean(flat ** 2)))

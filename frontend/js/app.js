@@ -574,8 +574,8 @@ function renderMarkdown(md) {
     // List items
     html = html.replace(/^- (.+)$/gm, '<div style="padding-left:1rem;margin:0.2rem 0;">• $1</div>');
 
-    // Table (simple — just hide it, the info is in headers)
-    html = html.replace(/\|[^\n]+\|/g, '');
+    // Table rows: match lines that look like markdown tables (start with |, contain |---|, or are data rows)
+    html = html.replace(/^\|.+\|$/gm, '');
 
     // Line breaks
     html = html.replace(/\n\n/g, '<div style="margin:0.5rem 0;"></div>');

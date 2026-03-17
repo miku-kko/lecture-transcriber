@@ -92,8 +92,19 @@ tags: [wyklad, transkrypcja]
     def _transcript_body(self, session: TranscriptSession) -> str:
         lines = []
         current_speaker = None
+        # Track which batch corrections we've already emitted
+        emitted_batch_ids: set[str] = set()
 
         for seg in session.segments:
+            if seg.correction and seg.is_corrected:
+                batch_id = seg.correction.segment_id
+                # For batch corrections (pipe-separated IDs), emit the combined
+                # corrected text only once for the first segment in the batch
+                if "|" in batch_id:
+                    if batch_id in emitted_batch_ids:
+                        continue
+                    emitted_batch_ids.add(batch_id)
+
             if seg.speaker_role != current_speaker:
                 current_speaker = seg.speaker_role
                 emoji = SPEAKER_EMOJI.get(current_speaker, "")
